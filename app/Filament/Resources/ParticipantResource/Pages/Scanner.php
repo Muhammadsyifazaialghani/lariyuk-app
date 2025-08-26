@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page; 
 use Illuminate\Support\Collection;
+use App\Events\ParticipantCheckedIn;
 
 class Scanner extends Page implements HasForms
 {
@@ -85,7 +86,8 @@ class Scanner extends Page implements HasForms
             $this->lastScannedParticipant = $participant;
             Notification::make()->title('Berhasil!')->body("Selamat datang, {$participant->name}!")->success()->send();
             
-            // Reset form input
+            // Pass the last scanned participant to the view
+            $this->lastScannedParticipant = $participant; // Ensure this is set
             $this->form->fill();
         }
 

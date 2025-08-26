@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Filament\Pages\BibCheck;
+use App\Filament\Pages\BibDisplay;
+use App\Filament\Pages\BigScreenDisplay;
+use App\Filament\Resources\ParticipantResource\Pages\Scanner;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/bib-check', BibCheck::class);
+Route::get('/bib-display', BibDisplay::class);
+Route::get('/bib-scanner', Scanner::class);
+

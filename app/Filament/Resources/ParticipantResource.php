@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Set;
+use Filament\Navigation\NavigationItem; 
+use App\Events\ParticipantCheckedIn; 
 
 class ParticipantResource extends Resource
 {
@@ -62,7 +64,7 @@ class ParticipantResource extends Resource
                 ->required()
                 ->default('registered'),
 
-            Forms\Components\DateTimePicker::make('checked_in_at'),
+            // Forms\Components\DateTimePicker::make('checked_in_at'),
         ]);
 }
 
@@ -92,4 +94,23 @@ class ParticipantResource extends Resource
             'edit' => Pages\EditParticipant::route('/{record}/edit'),
         ];
     }
+
+    // ... di dalam class ParticipantResource
+
+public static function getNavigationItems(): array
+{
+    return [
+        // Link untuk halaman daftar Peserta (Participants)
+        NavigationItem::make(static::getNavigationLabel())
+            ->url(static::getUrl('index'))
+            ->icon(static::getNavigationIcon())
+            ->isActiveWhen(fn (): bool => request()->routeIs(static::getRouteBaseName() . '.index')),
+
+        // Link untuk halaman custom Scanner Anda
+        NavigationItem::make('BIB Scanner')
+            ->url(static::getUrl('scan')) // 'scan' adalah key dari getPages()
+            ->icon('heroicon-o-qr-code')
+            ->isActiveWhen(fn (): bool => request()->routeIs(static::getRouteBaseName() . '.scan')),
+    ];
+}
 }

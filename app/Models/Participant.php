@@ -22,4 +22,9 @@ class Participant extends Model
         'status',
         'checked_in_at',
     ];
+
+    protected $casts = [
+        'status' => 'string',
+        'checked_in_at' => 'datetime',
+    ];
 }

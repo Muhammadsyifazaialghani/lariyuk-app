@@ -70,7 +70,9 @@
                                      <tr>
                                          <td class="fi-table-cell p-2">{{ $log->name }}</td>
                                          <td class="fi-table-cell p-2">{{ $log->bib_number }}</td>
-                                         <td class="fi-table-cell p-2 text-sm text-gray-500 dark:text-gray-400">{{ $log->checked_in_at->format('H:i:s') }}</td>
+<td class="fi-table-cell p-2 text-sm text-gray-500 dark:text-gray-400">
+    {{ $log->checked_in_at ? \Carbon\Carbon::parse($log->checked_in_at)->format('H:i:s') : '-' }}
+</td>
                                      </tr>
                                  @empty
                                      <tr>
