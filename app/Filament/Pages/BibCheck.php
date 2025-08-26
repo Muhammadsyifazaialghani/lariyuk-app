@@ -45,7 +45,8 @@ class BibCheck extends Page implements HasForms
                 TextInput::make('bib_number')
                     ->label('Masukkan Nomor BIB Anda')
                     ->required()
-                    ->placeholder('Contoh: EV0001 atau EV0002,EV0003,EV0004'),
+                    ->placeholder('Contoh: EV0001 atau EV0002,EV0003,EV0004')
+                    ->autocomplete('off'),
             ]);
     }
 

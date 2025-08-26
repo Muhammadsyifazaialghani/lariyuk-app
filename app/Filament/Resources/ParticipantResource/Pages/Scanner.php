@@ -76,8 +76,8 @@ class Scanner extends Page implements HasForms
             Notification::make()->title('Info')->body("{$participant->name} sudah melakukan check-in sebelumnya.")->warning()->send();
             $this->lastScannedParticipant = $participant; // Tetap tampilkan datanya
             
-            // Set form ke ev002 secara otomatis
-            $this->form->fill(['bib_number' => 'ev002']);
+            // Remove the line that sets the form to 'ev002'
+            // $this->form->fill(['bib_number' => 'ev002']);
         } else {
             $participant->update([
                 'status' => 'checked_in',
