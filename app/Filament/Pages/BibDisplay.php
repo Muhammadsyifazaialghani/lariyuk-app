@@ -3,7 +3,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Participant;
 use App\Models\LastBibSearch;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Collection;
@@ -13,29 +12,24 @@ class BibDisplay extends Page
     protected static string $view = 'filament.pages.bib-display';
     protected static bool $shouldRegisterNavigation = false;
 
-    // Properti untuk menyimpan log
-    public Collection $checkedInLog;
-    public $participantResult = null; // Bisa LastBibSearch atau null
+    // Properti ini sekarang akan menyimpan BANYAK hasil, bukan cuma satu
+    public Collection $participantResults;
 
     public function mount(): void
     {
-        $this->loadRecentCheckIns();
-        $this->loadLastBibSearch();
+        // Panggil method untuk memuat SEMUA hasil pencarian terakhir
+        $this->loadLastBibSearchResults();
     }
 
-    // Method ini akan dipanggil oleh Livewire secara berkala
-    public function loadRecentCheckIns(): void
+    // Nama method diubah agar lebih jelas
+    public function loadLastBibSearchResults(): void
     {
-        $this->checkedInLog = Participant::where('status', 'checked_in')
-            ->latest('checked_in_at')
-            ->take(15)
-            ->get();
+        // Mengambil SEMUA data dari tabel LastBibSearch, bukan cuma 'first()'
+        $this->participantResults = LastBibSearch::all();
     }
-
-    public function loadLastBibSearch(): void
-    {
-        $this->participantResult = LastBibSearch::latest()->first();
-    }
+    
+    // Anda bisa menambahkan listener untuk refresh otomatis jika BibCheck dan BibDisplay ada di satu halaman
+    // protected $listeners = ['bibsChecked' => 'loadLastBibSearchResults'];
 
     public function hasLogo(): bool
     {

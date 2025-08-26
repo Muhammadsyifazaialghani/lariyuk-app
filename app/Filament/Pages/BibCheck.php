@@ -11,26 +11,30 @@ use Filament\Forms\Form;
 use App\Events\ParticipantCheckedIn;
 use App\Models\LastBibSearch;
 use Filament\Pages\Page;
+use Filament\Notifications\Notification; // Import class Notifikasi
 
 class BibCheck extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    // Arahkan ke view yang sesuai
     protected static string $view = 'filament.pages.bib-check';
-    
-    // Jangan tampilkan di navigasi admin
     protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];
-    
-    // Properti untuk menyimpan hasil pencarian
-    public ?Participant $participantResult = null;
     public ?string $searchMessage = null;
 
     public function mount(): void
     {
-        $this->form->fill();
+        // Cek jika ada parameter 'bibs' dari URL
+        if (request()->has('bibs')) {
+            $bibsFromUrl = request()->get('bibs');
+            // Isi form dengan data dari URL
+            $this->form->fill(['bib_number' => $bibsFromUrl]);
+            // Langsung jalankan proses check-in
+            $this->checkStatus();
+        } else {
+            $this->form->fill();
+        }
     }
 
     public function form(Form $form): Form
@@ -41,49 +45,87 @@ class BibCheck extends Page implements HasForms
                 TextInput::make('bib_number')
                     ->label('Masukkan Nomor BIB Anda')
                     ->required()
-                    ->placeholder('Contoh: 12345'),
+                    ->placeholder('Contoh: EV0001 atau EV0002,EV0003,EV0004'),
             ]);
     }
 
     public function checkStatus(): void
     {
-        $this->participantResult = null;
+        // LANGKAH 1: Kosongkan hasil pencarian sebelumnya agar display bersih
+        LastBibSearch::query()->delete();
+
         $this->searchMessage = null;
 
-        $bibNumber = $this->form->getState()['bib_number'];
-        $participant = Participant::where('bib_number', $bibNumber)->first();
+        // LANGKAH 2: Ambil input dari form
+        $bibNumbersInput = $this->form->getState()['bib_number'];
 
-        if ($participant) {
-            $this->participantResult = $participant;
-            // Update the checked-in log
-            event(new ParticipantCheckedIn($participant));
-            $this->searchMessage = null;
-
-            // Simpan hasil pencarian ke tabel last_bib_searches
-            LastBibSearch::create([
-                'bib_number' => $participant->bib_number,
-                'name' => $participant->name,
-                'status' => $participant->status,
-                'checked_in_at' => $participant->checked_in_at,
-            ]);
-        } else {
-            $this->searchMessage = "Nomor BIB '{$bibNumber}' tidak ditemukan. Mohon periksa kembali.";
-            // Simpan pencarian gagal juga (opsional)
-            LastBibSearch::create([
-                'bib_number' => $bibNumber,
-                'name' => null,
-                'status' => 'not_found',
-                'checked_in_at' => null,
-            ]);
+        // Jika input kosong, jangan lakukan apa-apa
+        if (empty($bibNumbersInput)) {
+            return;
         }
-        
-        // Jangan reset form agar peserta bisa lihat nomor yang mereka masukkan
-        // $this->form->fill(); 
+
+        // LANGKAH 3: Pecah input menjadi array, pemisahnya adalah koma (,)
+        $bibNumbers = explode(',', $bibNumbersInput);
+
+        $foundCount = 0;
+        $notFoundNumbers = [];
+
+        // LANGKAH 4: Lakukan perulangan untuk setiap nomor BIB
+        foreach ($bibNumbers as $bibNumber) {
+            // Bersihkan dari spasi yang tidak perlu di awal atau akhir
+            $singleBibNumber = trim($bibNumber);
+
+            // Lewati jika setelah dibersihkan ternyata kosong
+            if (empty($singleBibNumber)) {
+                continue;
+            }
+
+            $participant = Participant::where('bib_number', $singleBibNumber)->first();
+
+            if ($participant) {
+                $foundCount++;
+                // Kirim event untuk update status check-in
+                event(new ParticipantCheckedIn($participant));
+
+                // Simpan data yang berhasil ditemukan ke tabel last_bib_searches
+                LastBibSearch::create([
+                    'bib_number' => $participant->bib_number,
+                    'name' => $participant->name,
+                    'status' => 'SUDAH CHECK-IN', // Langsung set status
+                    'checked_in_at' => now(),
+                ]);
+            } else {
+                // Kumpulkan nomor BIB yang tidak ditemukan
+                $notFoundNumbers[] = $singleBibNumber;
+
+                // Simpan data yang gagal ditemukan
+                LastBibSearch::create([
+                    'bib_number' => $singleBibNumber,
+                    'name' => 'TIDAK DITEMUKAN',
+                    'status' => 'not_found',
+                    'checked_in_at' => null,
+                ]);
+            }
+        }
+
+        // LANGKAH 5: Beri notifikasi hasil proses
+        if ($foundCount > 0) {
+            Notification::make()
+                ->title("Berhasil memproses {$foundCount} nomor BIB.")
+                ->success()
+                ->send();
+        }
+        if (!empty($notFoundNumbers)) {
+            Notification::make()
+                ->title('Beberapa nomor BIB tidak ditemukan')
+                ->body("Nomor: " . implode(', ', $notFoundNumbers))
+                ->danger()
+                ->send();
+        }
     }
 
     public function hasLogo(): bool
     {
-        // Logic to determine if a logo should be displayed
-        return true; // Change this logic as needed
+        return true;
     }
 }

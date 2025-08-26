@@ -1,12 +1,6 @@
 {{-- resources/views/filament/pages/bib-display.blade.php --}}
 
-{{-- Gunakan layout kosong agar tidak ada header/footer admin --}}
 <x-filament-panels::page.simple>
-
-    {{-- Tambahkan ini di <head> untuk auto-refresh halaman sebagai cadangan --}}
-    @push('scripts')
-        <meta http-equiv="refresh" content="300">
-    @endpush
     
     <div class="text-center mb-8">
         <h1 class="text-4xl font-bold tracking-tight text-gray-950 dark:text-white">
@@ -17,38 +11,46 @@
         </p>
     </div>
 
-    {{-- KUNCI REAL-TIME: wire:poll akan memanggil method loadLastBibSearch setiap 5 detik --}}
-    <div wire:poll.5s="loadLastBibSearch" class="fi-section mt-6 rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-        @if ($participantResult && $participantResult->status !== 'not_found')
-            <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5">
-                <thead class="bg-gray-50 dark:bg-white/5">
-                    <tr>
-                        <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nama Peserta</th>
-                        <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nomor BIB</th>
-                        <th class="p-4 text-xl font-semibold text-right text-gray-950 dark:text-white">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-white/5">
-                    <tr>
-                        <td class="p-4 text-2xl font-bold">{{ $participantResult->name }}</td>
-                        <td class="p-4 text-2xl font-mono">{{ $participantResult->bib_number }}</td>
+    {{-- KUNCI REAL-TIME: wire:poll sekarang memanggil method yang benar --}}
+    {{-- Dan kita menggunakan wire:key untuk performa Livewire yang lebih baik dalam loop --}}
+    <div wire:poll.5s="loadLastBibSearchResults" class="fi-section mt-6 rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+        <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5">
+            <thead class="bg-gray-50 dark:bg-white/5">
+                <tr>
+                    <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nama Peserta</th>
+                    <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nomor BIB</th>
+                    <th class="p-4 text-xl font-semibold text-right text-gray-950 dark:text-white">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-white/5">
+
+                {{-- DIUBAH: Menggunakan @forelse untuk loop semua hasil --}}
+                @forelse ($participantResults as $result)
+                    <tr wire:key="{{ $result->id }}">
+                        <td class="p-4 text-2xl font-bold">{{ $result->name }}</td>
+                        <td class="p-4 text-2xl font-mono">{{ $result->bib_number }}</td>
                         <td class="p-4 text-2xl text-right">
-                            @if ($participantResult->status === 'checked_in')
-                                <span class="text-success-600 dark:text-success-400">✅ SUDAH CHECK-IN</span>
+                            
+                            {{-- Tampilan status sekarang lebih lengkap --}}
+                            @if ($result->status === 'not_found')
+                                <span class="text-danger-600 dark:text-danger-400">❌ TIDAK DITEMUKAN</span>
                             @else
-                                <span class="text-gray-500">BELUM CHECK-IN</span>
+                                <span class="text-success-600 dark:text-success-400">✅ SUDAH CHECK-IN</span>
                             @endif
+
                         </td>
                     </tr>
-                </tbody>
-            </table>
-        @else
-            <div class="p-6 text-center text-xl text-gray-500 dark:text-gray-400">
-                Silakan cek status BIB Anda di halaman Bib Check
-            </div>
-        @endif
+                @empty
+                    {{-- Ini akan tampil jika tidak ada hasil sama sekali --}}
+                    <tr>
+                        <td colspan="3" class="p-6 text-center text-xl text-gray-500 dark:text-gray-400">
+                            Silakan cek status BIB Anda di halaman Bib Check
+                        </td>
+                    </tr>
+                @endforelse
+                
+            </tbody>
+        </table>
     </div>
 
-    {{-- Display Bib Check Result --}}
-    {{-- Dihilangkan sesuai permintaan --}}
 </x-filament-panels::page.simple>
