@@ -12,7 +12,7 @@
         {{ $this->form }}
 
         <x-filament::button type="submit" class="w-full">
-            Cek Status
+            Cek BIB Status
         </x-filament::button>
     </form>
 

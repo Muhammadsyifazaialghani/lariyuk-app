@@ -55,64 +55,59 @@ class BibCheck extends Page implements HasForms
         $this->searchMessage = null;
 
         // Ambil input dari form
-        $bibNumbersInput = $this->form->getState()['bib_number'];
+        $input = $this->form->getState()['bib_number'];
 
         // Jika input kosong, jangan lakukan apa-apa
-        if (empty($bibNumbersInput)) {
+        if (empty($input)) {
             return;
         }
 
         // Pecah input menjadi array, pemisahnya adalah koma (,)
-        $bibNumbers = explode(',', $bibNumbersInput);
+        $inputs = explode(',', $input);
 
         $foundCount = 0;
-        $notFoundNumbers = [];
+        $notFoundInputs = [];
 
-        // Lakukan perulangan untuk setiap nomor BIB
-        foreach ($bibNumbers as $bibNumber) {
-            // Bersihkan dari spasi yang tidak perlu di awal atau akhir
-            $singleBibNumber = trim($bibNumber);
-
-            // Lewati jika setelah dibersihkan ternyata kosong
-            if (empty($singleBibNumber)) {
+        // Lakukan perulangan untuk setiap input (bisa bib number atau nama)
+        foreach ($inputs as $inputItem) {
+            $inputItem = trim($inputItem);
+            if (empty($inputItem)) {
                 continue;
             }
 
-            $participant = Participant::where('bib_number', $singleBibNumber)->first();
+            // Cari berdasarkan bib_number atau nama (case-insensitive)
+            $participant = Participant::where('bib_number', $inputItem)
+                ->orWhereRaw('LOWER(name) = ?', [strtolower($inputItem)])
+                ->first();
 
             if ($participant) {
                 $foundCount++;
-                // Kirim event untuk update status check-in
                 event(new ParticipantCheckedIn($participant));
-
-                // Simpan data yang berhasil ditemukan ke tabel last_bib_searches TANPA kolom status
                 LastBibSearch::create([
                     'bib_number' => $participant->bib_number,
                     'name' => $participant->name,
                 ]);
             } else {
-                // Kumpulkan nomor BIB yang tidak ditemukan
-                $notFoundNumbers[] = $singleBibNumber;
-
-                // Simpan data yang gagal ditemukan TANPA kolom status
+                $notFoundInputs[] = $inputItem;
                 LastBibSearch::create([
-                    'bib_number' => $singleBibNumber,
-                    'name' => 'TIDAK DITEMUKAN',
+                    // Jika input berupa angka, asumsikan bib_number, jika bukan, asumsikan nama
+                    'bib_number' => is_numeric($inputItem) ? $inputItem : '-',
+                    'name' => is_numeric($inputItem) ? 'Tidak Ditemukan' : $inputItem,
                 ]);
             }
         }
 
-        // LANGKAH 5: Beri notifikasi hasil proses
+        // Notifikasi hasil proses
         if ($foundCount > 0) {
             Notification::make()
-                ->title("Berhasil memproses {$foundCount} nomor BIB.")
+                ->title("Berhasil memproses {$foundCount} data.")
                 ->success()
                 ->send();
         }
-        if (!empty($notFoundNumbers)) {
+        if (!empty($notFoundInputs)) {
             Notification::make()
-                ->title('Beberapa nomor BIB tidak ditemukan')
-                ->body("Nomor: " . implode(', ', $notFoundNumbers))
+                ->title('Beberapa data tidak ditemukan')
+                ->body("Input: " . implode(', ', $notFoundInputs))
                 ->danger()
                 ->send();
         }
