@@ -88,22 +88,22 @@ class BibCheck extends Page implements HasForms
                 // Kirim event untuk update status check-in
                 event(new ParticipantCheckedIn($participant));
 
-                // Simpan data yang berhasil ditemukan ke tabel last_bib_searches
+                // Simpan data yang berhasil ditemukan ke tabel last_bib_searches TANPA kolom status
                 LastBibSearch::create([
                     'bib_number' => $participant->bib_number,
                     'name' => $participant->name,
-                    'status' => 'SUDAH CHECK-IN', // Langsung set status
+                    // 'status' => 'SUDAH CHECK-IN', // DIHAPUS
                     'checked_in_at' => now(),
                 ]);
             } else {
                 // Kumpulkan nomor BIB yang tidak ditemukan
                 $notFoundNumbers[] = $singleBibNumber;
 
-                // Simpan data yang gagal ditemukan
+                // Simpan data yang gagal ditemukan TANPA kolom status
                 LastBibSearch::create([
                     'bib_number' => $singleBibNumber,
                     'name' => 'TIDAK DITEMUKAN',
-                    'status' => 'not_found',
+                    // 'status' => 'not_found', // DIHAPUS
                     'checked_in_at' => null,
                 ]);
             }

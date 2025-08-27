@@ -19,7 +19,6 @@
                 <tr>
                     <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nama Peserta</th>
                     <th class="p-4 text-xl font-semibold text-left text-gray-950 dark:text-white">Nomor BIB</th>
-                    <th class="p-4 text-xl font-semibold text-right text-gray-950 dark:text-white">Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-white/5">
@@ -29,21 +28,11 @@
                     <tr wire:key="{{ $result->id }}">
                         <td class="p-4 text-2xl font-bold">{{ $result->name }}</td>
                         <td class="p-4 text-2xl font-mono">{{ $result->bib_number }}</td>
-                        <td class="p-4 text-2xl text-right">
-                            
-                            {{-- Tampilan status sekarang lebih lengkap --}}
-                            @if ($result->status === 'not_found')
-                                <span class="text-danger-600 dark:text-danger-400">❌ TIDAK DITEMUKAN</span>
-                            @else
-                                <span class="text-success-600 dark:text-success-400">✅ SUDAH CHECK-IN</span>
-                            @endif
-
-                        </td>
                     </tr>
                 @empty
                     {{-- Ini akan tampil jika tidak ada hasil sama sekali --}}
                     <tr>
-                        <td colspan="3" class="p-6 text-center text-xl text-gray-500 dark:text-gray-400">
+                        <td colspan="2" class="p-6 text-center text-xl text-gray-500 dark:text-gray-400">
                             Silakan cek status BIB Anda di halaman Bib Check
                         </td>
                     </tr>
