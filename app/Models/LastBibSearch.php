@@ -10,7 +10,5 @@ class LastBibSearch extends Model
     protected $fillable = [
         'bib_number',
         'name',
-        'status',
-        'checked_in_at',
     ];
 }

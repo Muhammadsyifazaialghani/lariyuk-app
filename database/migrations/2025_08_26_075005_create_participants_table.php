@@ -13,8 +13,6 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Nama Peserta
             $table->string('bib_number')->unique(); // Nomor BIB, harus unik
-            $table->enum('status', ['registered', 'checked_in'])->default('registered'); // Status
-            $table->timestamp('checked_in_at')->nullable(); // Waktu check-in
             $table->timestamps();
         });
     }

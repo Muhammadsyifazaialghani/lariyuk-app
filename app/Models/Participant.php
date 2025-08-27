@@ -19,12 +19,5 @@ class Participant extends Model
     protected $fillable = [
         'name',
         'bib_number',
-        'status',
-        'checked_in_at',
-    ];
-
-    protected $casts = [
-        'status' => 'string',
-        'checked_in_at' => 'datetime',
     ];
 }
