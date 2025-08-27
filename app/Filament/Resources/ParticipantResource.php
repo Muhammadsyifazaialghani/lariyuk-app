@@ -55,15 +55,6 @@ class ParticipantResource extends Resource
 
                     return 'EV' . $formattedNumber;
                 }),
-
-            Forms\Components\Select::make('status')
-                ->options([
-                    'registered' => 'Registered',
-                    'checked_in' => 'Checked In',
-                ])
-                ->required()
-                ->default('registered'),
-
             // Forms\Components\DateTimePicker::make('checked_in_at'),
         ]);
 }
@@ -76,11 +67,10 @@ class ParticipantResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('bib_number')->searchable(),
-                Tables\Columns\TextColumn::make('status')->badge(),
-                Tables\Columns\TextColumn::make('checked_in_at')->dateTime()->sortable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ]);
     }
 
@@ -90,27 +80,8 @@ class ParticipantResource extends Resource
         return [
             'index' => Pages\ListParticipants::route('/'),
             'create' => Pages\CreateParticipant::route('/create'),
-            'scan' => Pages\Scanner::route('/scanner'), // Daftarkan halaman scanner
+            // 'scan' => Pages\Scanner::route('/scanner'), // Daftarkan halaman scanner
             'edit' => Pages\EditParticipant::route('/{record}/edit'),
         ];
     }
-
-    // ... di dalam class ParticipantResource
-
-public static function getNavigationItems(): array
-{
-    return [
-        // Link untuk halaman daftar Peserta (Participants)
-        NavigationItem::make(static::getNavigationLabel())
-            ->url(static::getUrl('index'))
-            ->icon(static::getNavigationIcon())
-            ->isActiveWhen(fn (): bool => request()->routeIs(static::getRouteBaseName() . '.index')),
-
-        // Link untuk halaman custom Scanner Anda
-        NavigationItem::make('BIB Scanner')
-            ->url(static::getUrl('scan')) // 'scan' adalah key dari getPages()
-            ->icon('heroicon-o-qr-code')
-            ->isActiveWhen(fn (): bool => request()->routeIs(static::getRouteBaseName() . '.scan')),
-    ];
-}
 }
