@@ -1,5 +1,3 @@
-{{-- resources/views/filament/pages/bib-display.blade.php --}}
-
 <x-filament-panels::page.simple>
     
     <div class="text-center mb-8">
@@ -11,8 +9,6 @@
         </p>
     </div>
 
-    {{-- KUNCI REAL-TIME: wire:poll sekarang memanggil method yang benar --}}
-    {{-- Dan kita menggunakan wire:key untuk performa Livewire yang lebih baik dalam loop --}}
     <div wire:poll.5s="loadLastBibSearchResults" class="fi-section mt-6 rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
         <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5">
             <thead class="bg-gray-50 dark:bg-white/5">
@@ -22,15 +18,12 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-white/5">
-
-                {{-- DIUBAH: Menggunakan @forelse untuk loop semua hasil --}}
                 @forelse ($participantResults as $result)
                     <tr wire:key="{{ $result->id }}">
                         <td class="p-4 text-2xl font-bold">{{ $result->name }}</td>
                         <td class="p-4 text-2xl font-mono">{{ $result->bib_number }}</td>
                     </tr>
                 @empty
-                    {{-- Ini akan tampil jika tidak ada hasil sama sekali --}}
                     <tr>
                         <td colspan="2" class="p-6 text-center text-xl text-gray-500 dark:text-gray-400">
                             Silakan cek status BIB Anda di halaman Bib Check

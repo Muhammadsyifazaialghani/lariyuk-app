@@ -1,5 +1,4 @@
 <?php
-// app/Models/LastBibSearch.php
 
 namespace App\Models;
 

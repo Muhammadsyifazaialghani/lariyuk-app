@@ -1,4 +1,3 @@
-{{-- resources/views/filament/pages/bib-check.blade.php --}}
 <x-filament-panels::page.simple>
     <div class="text-center">
         <h2 class="text-2xl font-bold tracking-tight text-gray-950 dark:text-white">
@@ -9,7 +8,6 @@
         </p>
     </div>
 
-    {{-- Form untuk Cek BIB --}}
     <form wire:submit.prevent="checkStatus" class="mt-8 space-y-6">
         {{ $this->form }}
 
@@ -18,5 +16,4 @@
         </x-filament::button>
     </form>
 
-    {{-- Area untuk Menampilkan Hasil dihapus --}}
 </x-filament-panels::page.simple>

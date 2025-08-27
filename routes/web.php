@@ -23,5 +23,4 @@ Route::get('/', function () {
 
 Route::get('/bib-check', BibCheck::class);
 Route::get('/bib-display', BibDisplay::class);
-// Route::get('/bib-scanner', Scanner::class);
 

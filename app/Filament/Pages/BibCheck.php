@@ -1,5 +1,4 @@
 <?php
-// app/Filament/Pages/BibCheck.php
 
 namespace App\Filament\Pages;
 
@@ -11,7 +10,7 @@ use Filament\Forms\Form;
 use App\Events\ParticipantCheckedIn;
 use App\Models\LastBibSearch;
 use Filament\Pages\Page;
-use Filament\Notifications\Notification; // Import class Notifikasi
+use Filament\Notifications\Notification; 
 
 class BibCheck extends Page implements HasForms
 {
@@ -30,8 +29,6 @@ class BibCheck extends Page implements HasForms
             $bibsFromUrl = request()->get('bibs');
             // Isi form dengan data dari URL
             $this->form->fill(['bib_number' => $bibsFromUrl]);
-            // Langsung jalankan proses check-in
-            $this->checkStatus();
         } else {
             $this->form->fill();
         }
@@ -45,19 +42,19 @@ class BibCheck extends Page implements HasForms
                 TextInput::make('bib_number')
                     ->label('Masukkan Nomor BIB Anda')
                     ->required()
-                    ->placeholder('Contoh: EV0001 atau EV0002,EV0003,EV0004')
+                    ->placeholder('masukkan id atau nomor BIB')
                     ->autocomplete('off'),
             ]);
     }
 
     public function checkStatus(): void
     {
-        // LANGKAH 1: Kosongkan hasil pencarian sebelumnya agar display bersih
+        // Kosongkan hasil pencarian sebelumnya agar display bersih
         LastBibSearch::query()->delete();
 
         $this->searchMessage = null;
 
-        // LANGKAH 2: Ambil input dari form
+        // Ambil input dari form
         $bibNumbersInput = $this->form->getState()['bib_number'];
 
         // Jika input kosong, jangan lakukan apa-apa
@@ -65,13 +62,13 @@ class BibCheck extends Page implements HasForms
             return;
         }
 
-        // LANGKAH 3: Pecah input menjadi array, pemisahnya adalah koma (,)
+        // Pecah input menjadi array, pemisahnya adalah koma (,)
         $bibNumbers = explode(',', $bibNumbersInput);
 
         $foundCount = 0;
         $notFoundNumbers = [];
 
-        // LANGKAH 4: Lakukan perulangan untuk setiap nomor BIB
+        // Lakukan perulangan untuk setiap nomor BIB
         foreach ($bibNumbers as $bibNumber) {
             // Bersihkan dari spasi yang tidak perlu di awal atau akhir
             $singleBibNumber = trim($bibNumber);
@@ -92,8 +89,6 @@ class BibCheck extends Page implements HasForms
                 LastBibSearch::create([
                     'bib_number' => $participant->bib_number,
                     'name' => $participant->name,
-                    // 'status' => 'SUDAH CHECK-IN', // DIHAPUS
-                    'checked_in_at' => now(),
                 ]);
             } else {
                 // Kumpulkan nomor BIB yang tidak ditemukan
@@ -103,8 +98,6 @@ class BibCheck extends Page implements HasForms
                 LastBibSearch::create([
                     'bib_number' => $singleBibNumber,
                     'name' => 'TIDAK DITEMUKAN',
-                    // 'status' => 'not_found', // DIHAPUS
-                    'checked_in_at' => null,
                 ]);
             }
         }

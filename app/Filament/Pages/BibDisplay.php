@@ -1,5 +1,4 @@
 <?php
-// app/Filament/Pages/BibDisplay.php
 
 namespace App\Filament\Pages;
 
@@ -29,7 +28,7 @@ class BibDisplay extends Page
     }
     
     // Anda bisa menambahkan listener untuk refresh otomatis jika BibCheck dan BibDisplay ada di satu halaman
-    // protected $listeners = ['bibsChecked' => 'loadLastBibSearchResults'];
+    protected $listeners = ['bibsChecked' => 'loadLastBibSearchResults'];
 
     public function hasLogo(): bool
     {
