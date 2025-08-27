@@ -89,10 +89,10 @@ class BibCheck extends Page implements HasForms
                 ]);
             } else {
                 $notFoundInputs[] = $inputItem;
+                // Jika tidak ditemukan, kosongkan kedua field
                 LastBibSearch::create([
-                    // Jika input berupa angka, asumsikan bib_number, jika bukan, asumsikan nama
-                    'bib_number' => is_numeric($inputItem) ? $inputItem : '-',
-                    'name' => is_numeric($inputItem) ? 'Tidak Ditemukan' : $inputItem,
+                    'bib_number' => '-',
+                    'name' => '-',
                 ]);
             }
         }
