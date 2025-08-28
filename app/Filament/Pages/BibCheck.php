@@ -7,7 +7,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use App\Events\ParticipantCheckedIn;
 use App\Models\LastBibSearch;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification; 
@@ -82,7 +81,6 @@ class BibCheck extends Page implements HasForms
 
             if ($participant) {
                 $foundCount++;
-                event(new ParticipantCheckedIn($participant));
                 LastBibSearch::create([
                     'bib_number' => $participant->bib_number,
                     'name' => $participant->name,
