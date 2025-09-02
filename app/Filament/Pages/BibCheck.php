@@ -23,9 +23,9 @@ class BibCheck extends Page implements HasForms
 
     public function mount(): void
     {
-        // Cek jika ada parameter 'bibs' dari URL
-        if (request()->has('bibs')) {
-            $bibsFromUrl = request()->get('bibs');
+        // Cek jika ada parameter 'bib-number' dari URL
+        if (request()->has('bib-number')) {
+            $bibsFromUrl = request()->get('bib-number', ''); // Default to empty string if not present
             // Isi form dengan data dari URL
             $this->form->fill(['bib_number' => $bibsFromUrl]);
         } else {
@@ -61,8 +61,8 @@ class BibCheck extends Page implements HasForms
             return;
         }
 
-        // Pecah input menjadi array, pemisahnya adalah koma (,)
-        $inputs = explode(',', $input);
+            // Ambil hanya bib number dari input
+            $inputs = [trim(explode(',', $input)[0])]; // Get the first part and trim whitespace
 
         $foundCount = 0;
         $notFoundInputs = [];

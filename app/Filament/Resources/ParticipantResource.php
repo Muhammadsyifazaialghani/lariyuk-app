@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Set;
 use Filament\Navigation\NavigationItem;
 use App\Events\ParticipantCheckedIn;
+use Illuminate\Contracts\View\View;
 
 class ParticipantResource extends Resource
 {
@@ -33,8 +34,9 @@ class ParticipantResource extends Resource
                 Forms\Components\TextInput::make('bib_number')
                     ->label('bib_number')
                     ->required()
+                    ->disabled()
+                    ->dehydrated()
                     ->unique(ignoreRecord: true)
-                    ->readonly()
                     ->default(function () {
                         // 1. Cari peserta terakhir yang dibuat
                         $latestParticipant = Participant::latest('id')->first();
@@ -71,10 +73,30 @@ class ParticipantResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('download_qr')
+                ->label('Download QR')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(function (Participant $record) {
+                    // Panggil fungsi di model untuk membuat file QR
+                    $qrCodePath = $record->generateQrCode();
 
+                    // Download file tersebut dengan path absolut
+                    $absolutePath = storage_path('app/public/' . $qrCodePath);
+                    return response()->download($absolutePath);
+                }),
+                Tables\Actions\Action::make('view_qr')
+                    ->label('View QR')
+                    ->icon('heroicon-o-qr-code')
+                    // Tentukan konten modal dari file view
+                    ->modalContent(fn (Participant $record): View => view(
+                        'filament.resources.participant-resource.qr-modal', // <- Nama file view Anda
+                        ['record' => $record],
+                    ))
+                    // Sembunyikan tombol-tombol default di modal
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false),
             ]);
     }
-
     public static function getPages(): array
     {
         // Bagian ini mendaftarkan semua halaman terkait resource ini

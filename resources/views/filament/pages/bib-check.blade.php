@@ -4,6 +4,9 @@
             Cek Status Check-in Anda
         </h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <button type="button" id="scan-qr" class="w-full bg-blue-500 text-white p-2 rounded">
+                Scan QR Code
+            </button>
             Masukkan nomor BIB Anda untuk melihat detail registrasi.
         </p>
     </div>
